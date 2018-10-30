@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Image,
@@ -91,17 +92,6 @@ const styles = StyleSheet.create({
   navigationFilename: {
     marginTop: 5
   },
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center'
-  },
-  helpLink: {
-    paddingVertical: 15
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7'
-  },
   tableRow: {
     flex: 1,
     width: Dimensions.get('window').width,
@@ -139,10 +129,30 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     backgroundColor: '#72ce63'
   },
+  bodyCompleted: {
+    flex: 1,
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    backgroundColor: '#ccc'
+  },
+  bodyAltCompleted: {
+    flex: 1,
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    backgroundColor: '#999'
+  },
   input: {
     flex: 1,
     width: Dimensions.get('window').width,
     padding: 10
+  },
+  lineThrough: {
+    textDecorationLine: 'line-through',
+    textDecorationStyle: 'solid'
   }
 });
 
@@ -219,12 +229,20 @@ export default class HomeScreen extends React.Component {
       <View key={item.key}>
         <TouchableOpacity
           onPress={() => this.checkItems(item, i)}
-          style={i % 2 === 0 ? styles.body : styles.bodyAlt}
+          style={
+            item.completed
+            ? i % 2 === 0
+              ? styles.bodyCompleted
+              : styles.bodyAltCompleted
+            : i % 2 === 0
+              ? styles.body
+              : styles.bodyAlt
+          }
           activeOpacity={0.5}
           onLongPress={() => this.setState({options: !this.state.options})}
         >
           <Text style={{paddingRight: 10}}>{item.key}</Text>
-          <Text>{item.content} {item.completed ? 'incomplete' : 'complete'}</Text>
+          <Text style={item.completed ? styles.lineThrough : ''}>{item.content} {item.completed ? 'incomplete' : 'complete'}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -264,12 +282,6 @@ export default class HomeScreen extends React.Component {
             />
           </TouchableOpacity>
           { list.map((e, i) => this.renderRow(e, i)) }
-
-          <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={this.handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </View>
     );
