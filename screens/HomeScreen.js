@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 20,
-    backgroundColor: '#fff'
+    backgroundColor: '#bef2b5'
   },
   bodyAlt: {
     flex: 1,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 20,
-    backgroundColor: '#d9dde2'
+    backgroundColor: '#72ce63'
   },
   row: {
     flex: 1,
@@ -146,12 +146,22 @@ const styles = StyleSheet.create({
   rowAlt: {
     flex: 1,
     alignSelf: 'stretch'
+  },
+  button: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#72ce63',
+    padding: 20
   }
 });
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null
+  };
+
+  state = {
+    count: 0
   };
 
   maybeRenderDevelopmentModeWarning() {
@@ -186,25 +196,37 @@ export default class HomeScreen extends React.Component {
       'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
     );
   };
+  onPress = () => this.setState({count: this.state.count+1});
+
 
   renderRow(item, i) {
     return (
-      <View style={i % 2 === 0 ? styles.body : styles.bodyAlt} key={item.key}>
-        <Text style={{ flex: 1, alignSelf: 'stretch' }} >{item.key}</Text>
-        <Text style={{ flex: 4, alignSelf: 'stretch' }} >{item.content}</Text>
+      <View key={item.key}>
+        {/* <Text style={{ flex: 1, alignSelf: 'stretch' }} >{item.key}</Text>
+        <Text style={{ flex: 4, alignSelf: 'stretch' }} >{item.content}</Text> */}
+        <TouchableOpacity
+          onPress={this.onPress}
+          style={i % 2 === 0 ? styles.body : styles.bodyAlt}
+          activeOpacity={0.5}
+        >
+          <Text style={{paddingRight: 10}}>{item.key}</Text>
+          <Text>{item.content}</Text>
+        </TouchableOpacity>
       </View>
     );
   };
 
   render() {
     const list = [
-      { key: '1', content: 'Item 1', completed: false },
-      { key: '2', content: 'Item 2', completed: false },
+      { key: '1', content: 'Item 1', completed: true },
+      { key: '2', content: 'Item 2', completed: true },
       { key: '3', content: 'Item 3', completed: false },
-      { key: '4', content: 'Item 4', completed: false },
+      { key: '4', content: 'Item 4', completed: true },
       { key: '5', content: 'Item 5', completed: false },
-      { key: '6', content: 'Item 6', completed: false }
+      { key: '6', content: 'Item 6', completed: true }
     ];
+
+    const { count } = this.state;
 
     return (
       <View style={styles.container}>
@@ -220,13 +242,13 @@ export default class HomeScreen extends React.Component {
             />
           </View>
 
-          {/* <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}> */}
-            <View style={styles.bodyAlt}>
-              <Text style={{ flex: 1, alignSelf: 'stretch' }} >+</Text>
-              <Text style={{ flex: 4, alignSelf: 'stretch' }} >Add to the list</Text>
-            </View>
-            { list.map((e, i) => this.renderRow(e, i)) }
-          {/* </View> */}
+          <TouchableOpacity
+            style={styles.bodyAlt}
+            onPress={this.onPress}
+          >
+            <Text>+ Add to the list {count}</Text>
+          </TouchableOpacity>
+          { list.map((e, i) => this.renderRow(e, i)) }
 
           <View style={styles.helpContainer}>
             <TouchableOpacity onPress={this.handleHelpPress} style={styles.helpLink}>
@@ -235,13 +257,13 @@ export default class HomeScreen extends React.Component {
           </View>
         </ScrollView>
 
-        <View style={styles.tabBarInfoContainer}>
+        {/* <View style={styles.tabBarInfoContainer}>
           <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
 
           <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
             <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
           </View>
-        </View>
+        </View> */}
       </View>
     );
   }
