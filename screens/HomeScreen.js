@@ -7,7 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
-  FlatList,
+  TextInput,
   Dimensions
 } from 'react-native';
 import { WebBrowser } from 'expo';
@@ -139,19 +139,10 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     backgroundColor: '#72ce63'
   },
-  row: {
+  input: {
     flex: 1,
-    alignSelf: 'stretch'
-  },
-  rowAlt: {
-    flex: 1,
-    alignSelf: 'stretch'
-  },
-  button: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#72ce63',
-    padding: 20
+    width: Dimensions.get('window').width,
+    padding: 10
   }
 });
 
@@ -161,7 +152,16 @@ export default class HomeScreen extends React.Component {
   };
 
   state = {
-    count: 0
+    count: 0,
+    list: [
+      { key: '1', content: 'Item 1', completed: true },
+      { key: '2', content: 'Item 2', completed: true },
+      { key: '3', content: 'Item 3', completed: false },
+      { key: '4', content: 'Item 4', completed: true },
+      { key: '5', content: 'Item 5', completed: false },
+      { key: '6', content: 'Item 6', completed: true }
+    ],
+    text: ''
   };
 
   maybeRenderDevelopmentModeWarning() {
@@ -196,14 +196,31 @@ export default class HomeScreen extends React.Component {
       'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
     );
   };
+
   onPress = () => this.setState({count: this.state.count+1});
 
+  onSubmit = () => {
+    this.setState({
+      list: this.state.list.concat({
+        key: this.state.list.length+1,
+        content: this.state.text,
+        completed: false
+      })
+    }, () => this.setState({text: ''},
+    () => console.log(this.state)));
+    // test = val => e => {
+    //   let answers = [...this.state.list];
+    //   let index = answers.indexOf(val);
+  
+    //   if (index > -1) this.setState({
+    //     list: [...answers.slice(0, index), ...answers.slice(index + 1)]
+    //   });
+    // };
+  };
 
   renderRow(item, i) {
     return (
       <View key={item.key}>
-        {/* <Text style={{ flex: 1, alignSelf: 'stretch' }} >{item.key}</Text>
-        <Text style={{ flex: 4, alignSelf: 'stretch' }} >{item.content}</Text> */}
         <TouchableOpacity
           onPress={this.onPress}
           style={i % 2 === 0 ? styles.body : styles.bodyAlt}
@@ -217,16 +234,7 @@ export default class HomeScreen extends React.Component {
   };
 
   render() {
-    const list = [
-      { key: '1', content: 'Item 1', completed: true },
-      { key: '2', content: 'Item 2', completed: true },
-      { key: '3', content: 'Item 3', completed: false },
-      { key: '4', content: 'Item 4', completed: true },
-      { key: '5', content: 'Item 5', completed: false },
-      { key: '6', content: 'Item 6', completed: true }
-    ];
-
-    const { count } = this.state;
+    const { count, list, text } = this.state;
 
     return (
       <View style={styles.container}>
@@ -246,7 +254,17 @@ export default class HomeScreen extends React.Component {
             style={styles.bodyAlt}
             onPress={this.onPress}
           >
-            <Text>+ Add to the list {count}</Text>
+            <TextInput
+              style={styles.input}
+              placeholderTextColor='#bef2b5'
+              selectionColor='#bef2b5'
+              underlineColorAndroid='#bef2b5'
+              placeholder="Add a new item"
+              returnKeyType="done"
+              value={this.state.text}
+              onChangeText={(text) => this.setState({text})}
+              onSubmitEditing={() => this.onSubmit()}
+            />
           </TouchableOpacity>
           { list.map((e, i) => this.renderRow(e, i)) }
 
@@ -256,15 +274,7 @@ export default class HomeScreen extends React.Component {
             </TouchableOpacity>
           </View>
         </ScrollView>
-
-        {/* <View style={styles.tabBarInfoContainer}>
-          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
-          </View>
-        </View> */}
       </View>
     );
-  }
-}
+  };
+};
