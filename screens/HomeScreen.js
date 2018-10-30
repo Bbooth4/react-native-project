@@ -152,7 +152,6 @@ export default class HomeScreen extends React.Component {
   };
 
   state = {
-    count: 0,
     list: [
       { key: '1', content: 'Item 1', completed: true },
       { key: '2', content: 'Item 2', completed: true },
@@ -161,7 +160,8 @@ export default class HomeScreen extends React.Component {
       { key: '5', content: 'Item 5', completed: false },
       { key: '6', content: 'Item 6', completed: true }
     ],
-    text: ''
+    text: '',
+    options: false
   };
 
   maybeRenderDevelopmentModeWarning() {
@@ -197,8 +197,6 @@ export default class HomeScreen extends React.Component {
     );
   };
 
-  onPress = () => this.setState({count: this.state.count+1});
-
   onSubmit = () => {
     this.setState({
       list: this.state.list.concat({
@@ -206,35 +204,34 @@ export default class HomeScreen extends React.Component {
         content: this.state.text,
         completed: false
       })
-    }, () => this.setState({text: ''},
-    () => console.log(this.state)));
-    // test = val => e => {
-    //   let answers = [...this.state.list];
-    //   let index = answers.indexOf(val);
-  
-    //   if (index > -1) this.setState({
-    //     list: [...answers.slice(0, index), ...answers.slice(index + 1)]
-    //   });
-    // };
+    }, () => this.setState({ text: '' }));
+  };
+
+  checkItems = (text, i) => {
+    let list = [...this.state.list];
+    list[i].completed = !list[i].completed;
+
+    this.setState({ list: list });
   };
 
   renderRow(item, i) {
     return (
       <View key={item.key}>
         <TouchableOpacity
-          onPress={this.onPress}
+          onPress={() => this.checkItems(item, i)}
           style={i % 2 === 0 ? styles.body : styles.bodyAlt}
           activeOpacity={0.5}
+          onLongPress={() => this.setState({options: !this.state.options})}
         >
           <Text style={{paddingRight: 10}}>{item.key}</Text>
-          <Text>{item.content}</Text>
+          <Text>{item.content} {item.completed ? 'incomplete' : 'complete'}</Text>
         </TouchableOpacity>
       </View>
     );
   };
 
   render() {
-    const { count, list, text } = this.state;
+    const { list, text } = this.state;
 
     return (
       <View style={styles.container}>
