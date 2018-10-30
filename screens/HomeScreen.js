@@ -7,17 +7,15 @@ import {
   Text,
   TouchableOpacity,
   View,
-  FlatList,
+  CheckBox,
   Dimensions
 } from 'react-native';
 import { WebBrowser } from 'expo';
 
-import { MonoText } from '../components/StyledText';
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#bef2b5',
     alignSelf: 'stretch'
   },
   developmentModeText: {
@@ -28,7 +26,9 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   contentContainer: {
-    paddingTop: 30
+    paddingTop: 30,
+    paddingLeft: 0,
+    paddingRight: 0
   },
   welcomeContainer: {
     alignItems: 'center',
@@ -105,17 +105,13 @@ const styles = StyleSheet.create({
   tableRow: {
     flex: 1,
     width: Dimensions.get('window').width,
-    alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20
+    alignSelf: 'center'
   },
   tableRowAlt: {
     flex: 1,
     width: Dimensions.get('window').width,
     alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    backgroundColor: '#d9dde2'
+    backgroundColor: '#72ce63'
   },
   tableBody: {
     flex: 1,
@@ -127,31 +123,60 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'stretch',
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    backgroundColor: '#fff'
+    backgroundColor: '#bef2b5'
   },
   bodyAlt: {
     flex: 1,
     alignSelf: 'stretch',
     flexDirection: 'row',
+    backgroundColor: '#72ce63'
+  },
+  addToList: {
+    flex: 1,
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    backgroundColor: '#72ce63',
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    backgroundColor: '#d9dde2'
+    paddingVertical: 20
   },
-  row: {
+  listItem: {
     flex: 1,
-    alignSelf: 'stretch'
+    alignSelf: 'stretch',
+    paddingHorizontal: 20,
+    paddingVertical: 20
   },
-  rowAlt: {
+  listItemContent: {
+    flex: 4,
+    alignSelf: 'stretch',
+    paddingHorizontal: 20,
+    paddingVertical: 20
+  },
+  container: {
     flex: 1,
-    alignSelf: 'stretch'
+    // justifyContent: 'center',
+    paddingHorizontal: 10
+  },
+  button: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#72ce63',
+    padding: 10
+  },
+  countContainer: {
+    alignItems: 'center',
+    padding: 10
+  },
+  countText: {
+    color: '#FF00FF'
   }
 });
 
 export default class HomeScreen extends React.Component {
-  static navigationOptions = {
-    header: null
+  static navigationOptions = { header: null };
+
+  state = {
+    count: 0,
+    checked: true
   };
 
   maybeRenderDevelopmentModeWarning() {
@@ -187,24 +212,40 @@ export default class HomeScreen extends React.Component {
     );
   };
 
+  onPress = () => this.setState({count: this.state.count+1});
+
   renderRow(item, i) {
     return (
       <View style={i % 2 === 0 ? styles.body : styles.bodyAlt} key={item.key}>
-        <Text style={{ flex: 1, alignSelf: 'stretch' }} >{item.key}</Text>
-        <Text style={{ flex: 4, alignSelf: 'stretch' }} >{item.content}</Text>
+        <CheckBox
+          center
+          title={item.content}
+          checkedIcon='dot-circle-o'
+          uncheckedIcon='circle-o'
+          checked={item.completed}
+        />
+        <TouchableOpacity
+          onPress={this.onPress}
+          style={styles.listItemContent}
+          activeOpacity={0.5}
+        >
+          <Text>{item.content}</Text>
+        </TouchableOpacity>
       </View>
     );
   };
 
   render() {
     const list = [
-      { key: '1', content: 'Item 1', completed: false },
-      { key: '2', content: 'Item 2', completed: false },
+      { key: '1', content: 'Item 1', completed: true },
+      { key: '2', content: 'Item 2', completed: true },
       { key: '3', content: 'Item 3', completed: false },
       { key: '4', content: 'Item 4', completed: false },
-      { key: '5', content: 'Item 5', completed: false },
+      { key: '5', content: 'Item 5', completed: true },
       { key: '6', content: 'Item 6', completed: false }
     ];
+
+    const { count, checked } = this.state;
 
     return (
       <View style={styles.container}>
@@ -220,13 +261,27 @@ export default class HomeScreen extends React.Component {
             />
           </View>
 
-          {/* <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}> */}
-            <View style={styles.bodyAlt}>
-              <Text style={{ flex: 1, alignSelf: 'stretch' }} >+</Text>
-              <Text style={{ flex: 4, alignSelf: 'stretch' }} >Add to the list</Text>
-            </View>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={this.onPress}
+            >
+              <Text>+ Add to the list {count}</Text>
+            </TouchableOpacity>
             { list.map((e, i) => this.renderRow(e, i)) }
-          {/* </View> */}
+
+          <View style={styles.container}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={this.onPress}
+            >
+              <Text> Touch Here </Text>
+            </TouchableOpacity>
+            <View style={styles.countContainer}>
+              <Text style={styles.countText}>
+                {count}
+              </Text>
+            </View>
+          </View>
 
           <View style={styles.helpContainer}>
             <TouchableOpacity onPress={this.handleHelpPress} style={styles.helpLink}>
@@ -239,7 +294,7 @@ export default class HomeScreen extends React.Component {
           <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
 
           <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
+            <Text style={styles.codeHighlightText}>navigation/MainTabNavigator.js</Text>
           </View>
         </View>
       </View>
