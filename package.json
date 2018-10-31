@@ -16,10 +16,13 @@
     "@expo/samples": "2.1.1",
     "classnames": "^2.2.6",
     "expo": "^30.0.1",
+    "pouchdb-adapter-asyncstorage": "^6.4.1",
+    "pouchdb-react-native": "^7.0.0-beta-1",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-30.0.0.tar.gz",
     "react-native-easy-grid": "^0.2.0",
-    "react-navigation": "^2.16.0"
+    "react-navigation": "^2.16.0",
+    "realm": "^2.18.0"
   },
   "devDependencies": {
     "jest-expo": "30.0.0"

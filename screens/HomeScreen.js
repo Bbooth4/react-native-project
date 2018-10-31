@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Component } from 'react';
 import {
   Image,
   Platform,
@@ -12,8 +12,14 @@ import {
   Dimensions
 } from 'react-native';
 import { WebBrowser } from 'expo';
-
-import { MonoText } from '../components/StyledText';
+import db from '../database/database.js';
+// import PouchDB from 'pouchdb-core';
+// PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
+// // import PouchDB from 'pouchdb-react-native'
+// const db = new PouchDB('lists', {
+//   adapter: 'asyncstorage',
+//   deterministic_revs: false
+// });
 
 const styles = StyleSheet.create({
   container: {
@@ -156,22 +162,41 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class HomeScreen extends React.Component {
+export default class HomeScreen extends Component {
   static navigationOptions = {
     header: null
   };
 
   state = {
-    list: [
-      { key: '1', content: 'Item 1', completed: true },
-      { key: '2', content: 'Item 2', completed: true },
-      { key: '3', content: 'Item 3', completed: false },
-      { key: '4', content: 'Item 4', completed: true },
-      { key: '5', content: 'Item 5', completed: false },
-      { key: '6', content: 'Item 6', completed: true }
-    ],
     text: '',
     options: false
+  };
+
+  componentDidMount() {
+    db.get('a8f87f23-afd5-482a-97b2-78316e6b593f')
+    .then(res => {
+      // console.log(res);
+      this.setState({
+        list: res,
+        text: '',
+        options: false
+      });
+    })
+    .catch(err => console.log(err));
+    // db.post({
+    //   list: [
+    //     { key: '1', content: 'Item 1', completed: true },
+    //     { key: '2', content: 'Item 2', completed: true },
+    //     { key: '3', content: 'Item 3', completed: false },
+    //     { key: '4', content: 'Item 4', completed: false },
+    //     { key: '5', content: 'Item 5', completed: false },
+    //     { key: '6', content: 'Item 6', completed: true }
+    //   ]
+    // })
+    // .then(res => {
+    //   console.log(res);
+    // })
+    // .catch(err => console.log(err));
   };
 
   maybeRenderDevelopmentModeWarning() {
@@ -201,12 +226,6 @@ export default class HomeScreen extends React.Component {
     WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
   };
 
-  handleHelpPress = () => {
-    WebBrowser.openBrowserAsync(
-      'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
-    );
-  };
-
   onSubmit = () => {
     this.setState({
       list: this.state.list.concat({
@@ -214,17 +233,44 @@ export default class HomeScreen extends React.Component {
         content: this.state.text,
         completed: false
       })
-    }, () => this.setState({ text: '' }));
+    }, () => this.setState({ text: '' },
+    () => db.post({
+      userId: '12345',
+      list: this.state.list
+    })
+    .then(res => {
+      console.log(res);
+      db.allDocs({id: res.id})
+      .then(r => console.log(r))
+      .catch(err => console.log(err));
+      // console.log(db);
+    })
+    .catch(err => console.log(err))));
   };
 
   checkItems = (text, i) => {
     let list = [...this.state.list];
     list[i].completed = !list[i].completed;
 
-    this.setState({ list: list });
+    console.log(this.state.list.list)
+    // this.setState({ list: { list } });
+
+    // db.put({
+    //   list: list
+    // })
+    // .then(res => {
+    //   console.log(res);
+      // db.get('lists')
+      // .then(doc => {
+      //   console.log(doc)
+      // })
+      // .catch(err => console.log(err))
+    // })
+    // .catch(err => console.log(err));
   };
 
   renderRow(item, i) {
+    // console.log('line 273', item);
     return (
       <View key={item.key}>
         <TouchableOpacity
@@ -241,8 +287,8 @@ export default class HomeScreen extends React.Component {
           activeOpacity={0.5}
           onLongPress={() => this.setState({options: !this.state.options})}
         >
-          <Text style={{paddingRight: 10}}>{item.key}</Text>
-          <Text style={item.completed ? styles.lineThrough : ''}>{item.content} {item.completed ? 'incomplete' : 'complete'}</Text>
+          {/* <Text style={{paddingRight: 20}}>{item.id}</Text> */}
+          <Text style={item.completed ? styles.lineThrough : ''}>{item.content}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -250,6 +296,7 @@ export default class HomeScreen extends React.Component {
 
   render() {
     const { list, text } = this.state;
+    console.log(list);
 
     return (
       <View style={styles.container}>
@@ -281,7 +328,7 @@ export default class HomeScreen extends React.Component {
               onSubmitEditing={() => this.onSubmit()}
             />
           </TouchableOpacity>
-          { list.map((e, i) => this.renderRow(e, i)) }
+          { list && list.list && list.list.map((e, i) => this.renderRow(e, i)) }
         </ScrollView>
       </View>
     );
