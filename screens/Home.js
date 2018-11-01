@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class LinksScreen extends Component {
+export default class Home extends Component {
   static navigationOptions = {
     title: 'List Collections'
   };
