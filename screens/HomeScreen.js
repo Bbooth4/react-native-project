@@ -129,18 +129,18 @@ export default class HomeScreen extends Component {
   };
 
   componentDidMount() {
-    db.get('0539a760-ceed-42fc-8777-efad6ba097e5')
+    db.get('db8face4-6834-4295-b619-31d04b6ef085')
     .then(res => {
       if (res.not_found) this.setState({ list: { list: [] } });
       else this.setState({ list: res });
     })
     .catch(err => console.log(err));
-    // db.get('0539a760-ceed-42fc-8777-efad6ba097e5')
+    // db.get('db8face4-6834-4295-b619-31d04b6ef085')
     // .then(res => this.setState({ list: res }))
     // .catch(err => console.log(err));
     // db.destroy();
     // db.allDocs().then(e => console.log(e));
-    // db.remove("652e6400-a488-47fa-8b0b-0f4f3e6bc420", "1-31a87ba119d14a7fa180bd2815aa0201")
+    // db.remove("26a762a5-c23e-477a-a952-2a8cb5b6fb2b", "1-3b0d43bcbeaa4ccf85689c3b1a3dbf34")
     // .then(e => console.log(e))
     // .catch(err => console.log(err));
     // db.post({
@@ -152,8 +152,9 @@ export default class HomeScreen extends Component {
     //     { key: '5', content: 'Grocery 5', completed: false },
     //     { key: '6', content: 'Grocery 6', completed: true }
     //   ],
-    //   deleted: false,
-    //   name: 'List 1'
+    //   completed: false,
+    //   name: 'List 1',
+    //   user_id: '12345abcde'
     // })
     // .then(res => {
     //   console.log(res);
@@ -189,43 +190,44 @@ export default class HomeScreen extends Component {
   };
 
   onSubmit = () => {
-    const list = this.state.list.list;
+    if (this.state.list && this.state.list.list) {
+      const list = this.state.list;
+      console.log(list);
 
-    list.push({
-      key: this.state.list.list.length+1,
-      content: this.state.text,
-      completed: false
-    });
-    
-    this.setState({
-      list: {
-        ...this.state.list,
-          list: list
-      }
-    }, () => this.setState({ text: '' },
-    () => {
-      console.log(this.state.list);
-      db.get(this.state.list._id)
-      .then(doc => {
-        console.log('line 249', this.state.list.list);
-        db.put({
-          _id: this.state.list._id,
-          _rev: doc._rev,
-          list: this.state.list.list
-        })
-        .then(res => {
-          db.get(this.state.list._id)
-          .then(doc => {
-            console.log('line 257', doc);
+      list.list.push({
+        key: list.list.length+1,
+        content: this.state.text,
+        completed: false
+      });
+      
+      this.setState({
+        list: {
+          ...list,
+            list: list.list
+        }
+      }, () => this.setState({ text: '' },
+      () => {
+        db.get(list._id)
+        .then(doc => {
+          console.log('line 249', list.list);
+          db.put({
+            _id: list._id,
+            _rev: doc._rev,
+            list: list.list
+          })
+          .then(res => {
+            db.get(list._id)
+            .then(doc => {
+              console.log('line 257', doc);
+            })
+            .catch(err => console.log(err));
+            console.log(res);
           })
           .catch(err => console.log(err));
-          console.log(res);
         })
         .catch(err => console.log(err));
-      })
-      .catch(err => console.log(err));
-    }
-    ));
+      }));
+    } else console.log('Not Found');
   };
 
   checkItems = (text, i) => {

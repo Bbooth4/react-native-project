@@ -67,59 +67,74 @@ const styles = StyleSheet.create({
 
 export default class LinksScreen extends Component {
   static navigationOptions = {
-    title: 'List Collection'
+    title: 'List Collections'
   };
 
   state = {
     text: '',
-    options: false
+    options: false,
+    error: false
   };
 
   componentDidMount() {
+    let byUser;
+
     db.allDocs()
-    .then(res => {
+    .then(async res => {
+      console.log(res);
       if (res.not_found) this.setState({ listCollection: [] });
-      else this.setState({ listCollection: res.rows });
+      else {
+        try { byUser = await res.rows.filter(e => e.doc.user_id === '12345abcde'); }
+        catch(err) { console.log(err); };
+
+        if (byUser.length > 0) this.setState({ listCollection: byUser });
+        else this.setState({ listCollection: [] });
+      };
     })
     .catch(err => console.log(err));
   };
 
   onSubmit = () => {
-    const list = this.state.listCollection;
+    let byUser;
 
-    list.push({
-      list: [],
-      deleted: false,
-      name: this.state.text
-    });
-
-    this.setState({ listCollection: list },
-      () => db.post({
-      list: [],
-      deleted: false,
-      name: this.state.text
-    })
-    .then(res => {
-      console.log(res);
-    })
-    .catch(err => console.log(err)));
+    if (this.state.text.length > 0) {
+      db.post({
+        list: [],
+        completed: false,
+        name: this.state.text,
+        user_id: '12345abcde'
+      })
+      .then(res => {
+        console.log('line 112', res);
+        db.allDocs()
+        .then(async res => {
+          console.log(res);
+          try { byUser = await res.rows.filter(e => e.doc.user_id === '12345abcde'); }
+          catch(err) { console.log(err); };
+  
+          if (byUser.length > 0) this.setState({ listCollection: byUser, text: '' });
+          else this.setState({ error: true, text: '' });
+        })
+        .catch(err => console.log(err));
+      })
+      .catch(err => console.log('line 106', err));
+    } else this.setState({ error: true });
   };
 
-
   checkItems = (text, i) => {
-    let list = [...this.state.listCollection];
-    console.log(list[i])
-    listCollection[i].deleted = !listCollection[i].deleted;
+    console.log('checked');
+    // let listCollection = [...this.state.listCollection];
+    // console.log(listCollection[i]);
+    // listCollection[i].deleted = !listCollection[i].deleted;
 
-    // this.setState({ list: { ...this.state.list, list } },
+    // this.setState({ listCollection: { ...this.state.listCollection, listCollection } },
     // () => {
-    //   // console.log(this.state.list);
-    //   db.get(this.state.list._id)
+    //   db.get(listCollection[i]._id)
     //   .then(doc => {
     //     db.put({
-    //       _id: this.state.list._id,
+    //       _id: listCollection[i]._id,
     //       _rev: doc._rev,
-    //       list: list,
+    //       listCollection: listCollection[i],
     //     })
     //     .then(res => {
     //       console.log(res);
@@ -131,12 +146,13 @@ export default class LinksScreen extends Component {
   };
 
   renderRow(item, i) {
+    // console.log(item);
     return (
-      <View key={item.key}>
+      <View key={item.id}>
         <TouchableOpacity
           onPress={() => this.checkItems(item, i)}
           style={
-            item.delete
+            item.completed
             ? i % 2 === 0
               ? styles.bodyCompleted
               : styles.bodyAltCompleted
@@ -148,7 +164,7 @@ export default class LinksScreen extends Component {
           onLongPress={() => this.setState({options: !this.state.options})}
         >
           {/* <Text style={{paddingRight: 20}}>{item.id}</Text> */}
-          <Text style={item.doc.deleted ? styles.lineThrough : ''}>{item.doc.name}</Text>
+          <Text style={item.doc.completed ? styles.lineThrough : ''}>{item.doc.name}</Text>
         </TouchableOpacity>
       </View>
     );
