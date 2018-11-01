@@ -13,13 +13,6 @@ import {
 } from 'react-native';
 import { WebBrowser } from 'expo';
 import db from '../database/database.js';
-// import PouchDB from 'pouchdb-core';
-// PouchDB.plugin(require('pouchdb-adapter-asyncstorage').default);
-// // import PouchDB from 'pouchdb-react-native'
-// const db = new PouchDB('lists', {
-//   adapter: 'asyncstorage',
-//   deterministic_revs: false
-// });
 
 const styles = StyleSheet.create({
   container: {
@@ -49,28 +42,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     marginLeft: -10
   },
-  getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50
-  },
-  homeScreenFilename: {
-    marginVertical: 7
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)'
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center'
-  },
-  tabBarInfoContainer: {
+  platformSpecificExample: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -89,29 +61,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fbfbfb',
     paddingVertical: 20
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center'
-  },
-  navigationFilename: {
-    marginTop: 5
-  },
-  tableRow: {
-    flex: 1,
-    width: Dimensions.get('window').width,
-    alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20
-  },
-  tableRowAlt: {
-    flex: 1,
-    width: Dimensions.get('window').width,
-    alignSelf: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    backgroundColor: '#d9dde2'
   },
   tableBody: {
     flex: 1,
@@ -174,14 +123,7 @@ export default class HomeScreen extends Component {
 
   componentDidMount() {
     db.get('0539a760-ceed-42fc-8777-efad6ba097e5')
-    .then(res => {
-      // console.log(res._id);
-      this.setState({
-        list: res,
-        text: '',
-        options: false
-      });
-    })
+    .then(res => this.setState({ list: res }))
     .catch(err => console.log(err));
     // db.allDocs().then(e => console.log(e));
     // db.remove("652e6400-a488-47fa-8b0b-0f4f3e6bc420", "1-31a87ba119d14a7fa180bd2815aa0201")
@@ -189,13 +131,15 @@ export default class HomeScreen extends Component {
     // .catch(err => console.log(err));
     // db.post({
     //   list: [
-    //     { key: '1', content: 'Item 1', completed: true },
-    //     { key: '2', content: 'Item 2', completed: true },
-    //     { key: '3', content: 'Item 3', completed: false },
-    //     { key: '4', content: 'Item 4', completed: false },
-    //     { key: '5', content: 'Item 5', completed: false },
-    //     { key: '6', content: 'Item 6', completed: true }
-    //   ]
+    //     { key: '1', content: 'Grocery 1', completed: true },
+    //     { key: '2', content: 'Grocery 2', completed: true },
+    //     { key: '3', content: 'Grocery 3', completed: false },
+    //     { key: '4', content: 'Grocery 4', completed: false },
+    //     { key: '5', content: 'Grocery 5', completed: false },
+    //     { key: '6', content: 'Grocery 6', completed: true }
+    //   ],
+    //   deleted: false,
+    //   name: 'List 1'
     // })
     // .then(res => {
     //   console.log(res);
@@ -230,7 +174,6 @@ export default class HomeScreen extends Component {
     WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
   };
 
-  // need to do the get to wrap the puts so that the new _rev can be accessed
   onSubmit = () => {
     const list = this.state.list.list;
 
@@ -246,29 +189,28 @@ export default class HomeScreen extends Component {
           list: list
       }
     }, () => this.setState({ text: '' },
-    () => console.log('line 245', this.state.list.list)
-    // () => {
-    //   console.log(this.state.list);
-    //   db.get(this.state.list._id)
-    //   .then(doc => {
-    //     console.log('line 249', this.state.list.list);
-    //     db.put({
-    //       _id: this.state.list._id,
-    //       _rev: doc._rev,
-    //       list: this.state.list.list
-    //     })
-    //     .then(res => {
-    //       db.get(this.state.list._id)
-    //       .then(doc => {
-    //         console.log('line 257', doc);
-    //       })
-    //       .catch(err => console.log(err));
-    //       console.log(res);
-    //     })
-    //     .catch(err => console.log(err));
-    //   })
-    //   .catch(err => console.log(err));
-    // }
+    () => {
+      console.log(this.state.list);
+      db.get(this.state.list._id)
+      .then(doc => {
+        console.log('line 249', this.state.list.list);
+        db.put({
+          _id: this.state.list._id,
+          _rev: doc._rev,
+          list: this.state.list.list
+        })
+        .then(res => {
+          db.get(this.state.list._id)
+          .then(doc => {
+            console.log('line 257', doc);
+          })
+          .catch(err => console.log(err));
+          console.log(res);
+        })
+        .catch(err => console.log(err));
+      })
+      .catch(err => console.log(err));
+    }
     ));
   };
 
@@ -276,7 +218,7 @@ export default class HomeScreen extends Component {
     let list = [...this.state.list.list];
     list[i].completed = !list[i].completed;
 
-    this.setState({ list: { ...this.state.list, list } }, 
+    this.setState({ list: { ...this.state.list, list } },
     () => {
       // console.log(this.state.list);
       db.get(this.state.list._id)
@@ -320,7 +262,7 @@ export default class HomeScreen extends Component {
   };
 
   render() {
-    const { list, text } = this.state;
+    const { list } = this.state;
 
     return (
       <View style={styles.container}>
@@ -345,10 +287,10 @@ export default class HomeScreen extends Component {
               placeholderTextColor='#bef2b5'
               selectionColor='#bef2b5'
               underlineColorAndroid='#bef2b5'
-              placeholder="Add a new item"
+              placeholder="Add a new item to the list"
               returnKeyType="done"
               value={this.state.text}
-              onChangeText={(text) => this.setState({text})}
+              onChangeText={text => this.setState({text})}
               onSubmitEditing={() => this.onSubmit()}
             />
           </TouchableOpacity>
