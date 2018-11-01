@@ -108,6 +108,13 @@ const styles = StyleSheet.create({
   lineThrough: {
     textDecorationLine: 'line-through',
     textDecorationStyle: 'solid'
+  },
+  placeholderText: {
+    flex: 1,
+    alignSelf: 'center',
+    paddingHorizontal: 80,
+    paddingVertical: 80,
+    fontSize: 20
   }
 });
 
@@ -123,8 +130,15 @@ export default class HomeScreen extends Component {
 
   componentDidMount() {
     db.get('0539a760-ceed-42fc-8777-efad6ba097e5')
-    .then(res => this.setState({ list: res }))
+    .then(res => {
+      if (res.not_found) this.setState({ list: { list: [] } });
+      else this.setState({ list: res });
+    })
     .catch(err => console.log(err));
+    // db.get('0539a760-ceed-42fc-8777-efad6ba097e5')
+    // .then(res => this.setState({ list: res }))
+    // .catch(err => console.log(err));
+    // db.destroy();
     // db.allDocs().then(e => console.log(e));
     // db.remove("652e6400-a488-47fa-8b0b-0f4f3e6bc420", "1-31a87ba119d14a7fa180bd2815aa0201")
     // .then(e => console.log(e))
@@ -182,7 +196,7 @@ export default class HomeScreen extends Component {
       content: this.state.text,
       completed: false
     });
-    console.log('line 236', list);
+    
     this.setState({
       list: {
         ...this.state.list,
@@ -294,7 +308,13 @@ export default class HomeScreen extends Component {
               onSubmitEditing={() => this.onSubmit()}
             />
           </TouchableOpacity>
-          { list && list.list && list.list.map((e, i) => this.renderRow(e, i)) }
+          {
+            list
+            ? list.list && list.list.length > 0
+              ? list.list.map((e, i) => this.renderRow(e, i))
+              : <Text style={styles.placeholderText}>You Have Not Added Any Items To The List Yet</Text>
+            : <Text style={styles.placeholderText}>No List Is Available</Text>
+          }
         </ScrollView>
       </View>
     );

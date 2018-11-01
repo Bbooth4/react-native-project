@@ -13,7 +13,6 @@ import db from '../database/database.js';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 15,
     backgroundColor: '#fff'
   },
   body: {
@@ -56,6 +55,13 @@ const styles = StyleSheet.create({
   lineThrough: {
     textDecorationLine: 'line-through',
     textDecorationStyle: 'solid'
+  },
+  placeholderText: {
+    flex: 1,
+    alignSelf: 'center',
+    paddingHorizontal: 80,
+    paddingVertical: 80,
+    fontSize: 20
   }
 });
 
@@ -71,9 +77,34 @@ export default class LinksScreen extends Component {
 
   componentDidMount() {
     db.allDocs()
-    .then(res => this.setState({ listCollection: res.rows }))
+    .then(res => {
+      if (res.not_found) this.setState({ listCollection: [] });
+      else this.setState({ listCollection: res.rows });
+    })
     .catch(err => console.log(err));
   };
+
+  onSubmit = () => {
+    const list = this.state.listCollection;
+
+    list.push({
+      list: [],
+      deleted: false,
+      name: this.state.text
+    });
+
+    this.setState({ listCollection: list },
+      () => db.post({
+      list: [],
+      deleted: false,
+      name: this.state.text
+    })
+    .then(res => {
+      console.log(res);
+    })
+    .catch(err => console.log(err)));
+  };
+
 
   checkItems = (text, i) => {
     let list = [...this.state.listCollection];
@@ -134,17 +165,22 @@ export default class LinksScreen extends Component {
         >
           <TextInput
             style={styles.input}
-            placeholderTextColor='#bef2b5'
             selectionColor='#bef2b5'
+            placeholderTextColor='#bef2b5'
             underlineColorAndroid='#bef2b5'
-            placeholder="Create a new list"
-            returnKeyType="done"
+            placeholder='Create a new list'
+            returnKeyType='done'
             value={this.state.text}
             onChangeText={text => this.setState({text})}
             onSubmitEditing={() => this.onSubmit()}
           />
         </TouchableOpacity>
-        { listCollection && listCollection.map((e, i) => this.renderRow(e, i)) }
+        {
+          listCollection &&
+          listCollection.length > 0
+          ? listCollection.map((e, i) => this.renderRow(e, i))
+          : <Text style={styles.placeholderText}>No Lists Available</Text>
+        }
       </ScrollView>
     );
   };
