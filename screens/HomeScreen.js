@@ -173,9 +173,9 @@ export default class HomeScreen extends Component {
   };
 
   componentDidMount() {
-    db.get('a8f87f23-afd5-482a-97b2-78316e6b593f')
+    db.get('0539a760-ceed-42fc-8777-efad6ba097e5')
     .then(res => {
-      // console.log(res);
+      // console.log(res._id);
       this.setState({
         list: res,
         text: '',
@@ -183,6 +183,10 @@ export default class HomeScreen extends Component {
       });
     })
     .catch(err => console.log(err));
+    // db.allDocs().then(e => console.log(e));
+    // db.remove("652e6400-a488-47fa-8b0b-0f4f3e6bc420", "1-31a87ba119d14a7fa180bd2815aa0201")
+    // .then(e => console.log(e))
+    // .catch(err => console.log(err));
     // db.post({
     //   list: [
     //     { key: '1', content: 'Item 1', completed: true },
@@ -226,51 +230,72 @@ export default class HomeScreen extends Component {
     WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
   };
 
+  // need to do the get to wrap the puts so that the new _rev can be accessed
   onSubmit = () => {
+    const list = this.state.list.list;
+
+    list.push({
+      key: this.state.list.list.length+1,
+      content: this.state.text,
+      completed: false
+    });
+    console.log('line 236', list);
     this.setState({
-      list: this.state.list.concat({
-        key: this.state.list.length+1,
-        content: this.state.text,
-        completed: false
-      })
+      list: {
+        ...this.state.list,
+          list: list
+      }
     }, () => this.setState({ text: '' },
-    () => db.post({
-      userId: '12345',
-      list: this.state.list
-    })
-    .then(res => {
-      console.log(res);
-      db.allDocs({id: res.id})
-      .then(r => console.log(r))
-      .catch(err => console.log(err));
-      // console.log(db);
-    })
-    .catch(err => console.log(err))));
+    () => console.log('line 245', this.state.list.list)
+    // () => {
+    //   console.log(this.state.list);
+    //   db.get(this.state.list._id)
+    //   .then(doc => {
+    //     console.log('line 249', this.state.list.list);
+    //     db.put({
+    //       _id: this.state.list._id,
+    //       _rev: doc._rev,
+    //       list: this.state.list.list
+    //     })
+    //     .then(res => {
+    //       db.get(this.state.list._id)
+    //       .then(doc => {
+    //         console.log('line 257', doc);
+    //       })
+    //       .catch(err => console.log(err));
+    //       console.log(res);
+    //     })
+    //     .catch(err => console.log(err));
+    //   })
+    //   .catch(err => console.log(err));
+    // }
+    ));
   };
 
   checkItems = (text, i) => {
-    let list = [...this.state.list];
+    let list = [...this.state.list.list];
     list[i].completed = !list[i].completed;
 
-    console.log(this.state.list.list)
-    // this.setState({ list: { list } });
-
-    // db.put({
-    //   list: list
-    // })
-    // .then(res => {
-    //   console.log(res);
-      // db.get('lists')
-      // .then(doc => {
-      //   console.log(doc)
-      // })
-      // .catch(err => console.log(err))
-    // })
-    // .catch(err => console.log(err));
+    this.setState({ list: { ...this.state.list, list } }, 
+    () => {
+      // console.log(this.state.list);
+      db.get(this.state.list._id)
+      .then(doc => {
+        db.put({
+          _id: this.state.list._id,
+          _rev: doc._rev,
+          list: list,
+        })
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => console.log(err));
+      })
+      .catch(err => console.log(err));
+    });
   };
 
   renderRow(item, i) {
-    // console.log('line 273', item);
     return (
       <View key={item.key}>
         <TouchableOpacity
@@ -296,7 +321,6 @@ export default class HomeScreen extends Component {
 
   render() {
     const { list, text } = this.state;
-    console.log(list);
 
     return (
       <View style={styles.container}>
