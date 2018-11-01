@@ -8,7 +8,9 @@ import {
   View,
   TextInput
 } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 import db from '../database/database.js';
+import List from './List';
 
 const styles = StyleSheet.create({
   container: {
@@ -73,7 +75,8 @@ export default class Home extends Component {
   state = {
     text: '',
     options: false,
-    error: false
+    error: false, 
+    selectedList: false
   };
 
   componentDidMount() {
@@ -145,12 +148,11 @@ export default class Home extends Component {
     // });
   };
 
-  renderRow(item, i) {
-    // console.log(item);
+  renderRow = (item, i, navigate) => {
     return (
       <View key={item.id}>
         <TouchableOpacity
-          onPress={() => this.checkItems(item, i)}
+          onPress={() => this.setState({selectedList: true, selectedId: item.id})}
           style={
             item.completed
             ? i % 2 === 0
@@ -171,31 +173,38 @@ export default class Home extends Component {
   };
 
   render() {
-    const { listCollection } = this.state;
+    const { listCollection, selectedList, selectedId } = this.state;
+    const { navigate } = this.props.navigation;
 
     return (
       <ScrollView style={styles.container}>
-        <TouchableOpacity
-          style={styles.bodyAlt}
-          onPress={this.onPress}
-        >
-          <TextInput
-            style={styles.input}
-            selectionColor='#bef2b5'
-            placeholderTextColor='#bef2b5'
-            underlineColorAndroid='#bef2b5'
-            placeholder='Create a new list'
-            returnKeyType='done'
-            value={this.state.text}
-            onChangeText={text => this.setState({text})}
-            onSubmitEditing={() => this.onSubmit()}
-          />
-        </TouchableOpacity>
         {
-          listCollection &&
-          listCollection.length > 0
-          ? listCollection.map((e, i) => this.renderRow(e, i))
-          : <Text style={styles.placeholderText}>No Lists Available</Text>
+          selectedList
+          ? <List id={selectedId}/>
+          : <View>
+            <TouchableOpacity
+              style={styles.bodyAlt}
+              onPress={this.onPress}
+            >
+              <TextInput
+                style={styles.input}
+                selectionColor='#bef2b5'
+                placeholderTextColor='#bef2b5'
+                underlineColorAndroid='#bef2b5'
+                placeholder='Create a new list'
+                returnKeyType='done'
+                value={this.state.text}
+                onChangeText={text => this.setState({text})}
+                onSubmitEditing={() => this.onSubmit()}
+              />
+            </TouchableOpacity>
+            {
+              listCollection &&
+              listCollection.length > 0
+              ? listCollection.map((e, i) => this.renderRow(e, i, navigate))
+              : <Text style={styles.placeholderText}>No Lists Available</Text>
+            }
+          </View>
         }
       </ScrollView>
     );

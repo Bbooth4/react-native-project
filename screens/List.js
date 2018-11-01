@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default class HomeScreen extends Component {
+export default class List extends Component {
   static navigationOptions = {
     header: null
   };
@@ -129,7 +129,7 @@ export default class HomeScreen extends Component {
   };
 
   componentDidMount() {
-    db.get('db8face4-6834-4295-b619-31d04b6ef085')
+    db.get(this.props.id)
     .then(res => {
       if (res.not_found) this.setState({ list: { list: [] } });
       else this.setState({ list: res });
@@ -203,7 +203,7 @@ export default class HomeScreen extends Component {
       this.setState({
         list: {
           ...list,
-            list: list.list
+          list: list.list
         }
       }, () => this.setState({ text: '' },
       () => {
@@ -213,7 +213,10 @@ export default class HomeScreen extends Component {
           db.put({
             _id: list._id,
             _rev: doc._rev,
-            list: list.list
+            list: list.list,
+            user_id: doc.user_id,
+            name: doc.name,
+            completed: doc.completed
           })
           .then(res => {
             db.get(list._id)
@@ -243,6 +246,9 @@ export default class HomeScreen extends Component {
           _id: this.state.list._id,
           _rev: doc._rev,
           list: list,
+          user_id: doc.user_id,
+          name: doc.name,
+          completed: doc.completed
         })
         .then(res => {
           console.log(res);
@@ -283,7 +289,7 @@ export default class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
+          {/* <View style={styles.welcomeContainer}>
             <Image
               source={
                 __DEV__
@@ -292,7 +298,7 @@ export default class HomeScreen extends Component {
               }
               style={styles.welcomeImage}
             />
-          </View>
+          </View> */}
 
           <TouchableOpacity
             style={styles.bodyAlt}
