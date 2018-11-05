@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch'
   },
   developmentModeText: {
-    marginBottom: 20,
     color: 'rgba(0,0,0,0.4)',
     fontSize: 14,
     lineHeight: 19,
@@ -120,7 +119,8 @@ const styles = StyleSheet.create({
 
 export default class List extends Component {
   static navigationOptions = {
-    header: null
+    header: null,
+    title: 'List'
   };
 
   state = {

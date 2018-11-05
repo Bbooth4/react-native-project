@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
 
 export default class Home extends Component {
   static navigationOptions = {
-    title: 'List Collections'
+    title: 'Your Lists'
   };
 
   state = {
@@ -80,11 +80,12 @@ export default class Home extends Component {
   };
 
   componentDidMount() {
+    // db.destroy();
     let byUser;
 
     db.allDocs()
     .then(async res => {
-      console.log(res);
+      // console.log(res);
       if (res.not_found) this.setState({ listCollection: [] });
       else {
         try { byUser = await res.rows.filter(e => e.doc.user_id === '12345abcde'); }
@@ -148,7 +149,7 @@ export default class Home extends Component {
     // });
   };
 
-  renderRow = (item, i, navigate) => {
+  renderRow = (item, i) => {
     return (
       <View key={item.id}>
         <TouchableOpacity
