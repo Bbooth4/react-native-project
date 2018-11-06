@@ -8,10 +8,9 @@ import {
   View,
   TextInput
 } from 'react-native';
-import { NavigationActions } from 'react-navigation';
-import {connect} from 'react-redux';
 import db from '../database/database.js';
 import List from './List';
+import Home from './Home';
 
 const styles = StyleSheet.create({
   container: {
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
   }
 });
 
-class Home extends Component {
+export default class Lists extends Component {
   static navigationOptions = {
     title: 'Your Lists'
   };
@@ -175,51 +174,15 @@ class Home extends Component {
   };
 
   render() {
-    const { listCollection, selectedList, selectedId } = this.state;
-    const { navigate } = this.props.navigation;
-    console.log(this.props.state.list);
-
     return (
       <ScrollView style={styles.container}>
         {
           selectedList
           ? <List id={selectedId}/>
-          : <View>
-            <TouchableOpacity
-              style={styles.bodyAlt}
-              onPress={this.onPress}
-            >
-              <TextInput
-                style={styles.input}
-                selectionColor='#bef2b5'
-                placeholderTextColor='#bef2b5'
-                underlineColorAndroid='#bef2b5'
-                placeholder='Create a new list'
-                returnKeyType='done'
-                value={this.state.text}
-                onChangeText={text => this.setState({text})}
-                onSubmitEditing={() => this.onSubmit()}
-              />
-            </TouchableOpacity>
-            {
-              listCollection &&
-              listCollection.length > 0
-              ? listCollection.map((e, i) => this.renderRow(e, i, navigate))
-              : <Text style={styles.placeholderText}>No Lists Available</Text>
-            }
-          </View>
+          : <Home />
         }
+        <Text>Back</Text>
       </ScrollView>
     );
   };
 };
-
-const mapStateToProps = (state) => ({
-  state
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  dispatch
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
